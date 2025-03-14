@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Quantum Inclusion Chatbot</title>
+  <!-- jQuery for quick prototyping -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: Arial, sans-serif;
+    }
+    /* Start Page Styling */
+    #start-page {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: url("{{ url_for('static', filename='images/image.png') }}") no-repeat center center;
+      background-size: cover;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 2;
+    }
+    #start-page button {
+      padding: 15px 30px;
+      margin: 10px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #3b5998;
+      color: #fff;
+    }
+    #start-page button:hover {
+      opacity: 0.8;
+    }
+    /* Chat Interface Styling */
+    #chat-interface {
+      display: none;
+      position: relative;
+      z-index: 1;
+    }
+    /* Background Video for Chat Interface */
+    #bg-video {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      min-width: 100vw;
+      min-height: 100vh;
+      object-fit: cover;
+      z-index: -1;
+    }
+    /* Chat Box (no grey background box) */
+    #chat-box {
+      width: 600px;
+      height: 450px;
+      overflow-y: auto;
+      padding: 20px;
+      margin: 50px auto 10px auto;
+    }
+    /* Message Bubble Styling */
+    .message {
+      max-width: 80%;
+      padding: 10px 15px;
+      border-radius: 15px;
+      position: relative;
+      line-height: 1.4;
+      margin-bottom: 10px;
+    }
+    .Qora {
+      background-color: #e0f7ff;
+      color: #005f87;
+      align-self: flex-start;
+    }
+    .Qora::before {
+      content: "";
+      position: absolute;
+      top: 10px;
+      left: -15px;
+      border-width: 8px;
+      border-style: solid;
+      border-color: transparent #e0f7ff transparent transparent;
+    }
+    .Traveler {
+      background-color: #e0ffe0;
+      color: #007500;
+      align-self: flex-end;
+    }
+    .Traveler::after {
+      content: "";
+      position: absolute;
+      top: 10px;
+      right: -15px;
+      border-width: 8px;
+      border-style: solid;
+      border-color: transparent transparent transparent #e0ffe0;
+    }
+    /* Input Area Styling */
+    #input-area {
+      width: 600px;
+      margin: 10px auto 0 auto;
+      display: flex;
+    }
+    #user-input {
+      width: 80%;
+      padding: 10px;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    #send {
+      width: 18%;
+      padding: 10px;
+      margin-left: 10px;
+      background-color: #3b5998;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    #send:hover {
+      background-color: #2d4373;
+    }
+  </style>
+</head>
+<body>
+  <!-- Start Game Page -->
+  <div id="start-page">
+    <button id="journey-walk">Taking a Journey Walk</button>
+    <button id="unconscious-bias">Doing an Unconscious Bias Test</button>
+  </div>
+
+  <!-- Chat Interface -->
+  <div id="chat-interface">
+    <!-- Background video element -->
+    <video autoplay muted loop id="bg-video">
+      <source src="{{ url_for('static', filename='videos/background.mp4') }}" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <!-- Chat box -->
+    <div id="chat-box"></div>
+    <!-- Input area -->
+    <div id="input-area">
+      <input type="text" id="user-input" placeholder="Type your message here..." />
+      <button id="send">Send</button>
+    </div>
+  </div>
+
+  <script>
+    // Define two conversation arrays: one for Journey Walk and one for the Unconscious Bias Test.
+    var journeyConversation = [
+      {
+        speaker: "Qora",
+        text: "Greetings, traveler. I am Qora, your mystical guide through these quantum realms."
+      },
+      {
+        speaker: "Qora",
+        text: "Now, can you share with me: how often do you feel that your unique perspective is truly valued in your day-to-day work? Any moments that stand out?"
+      },
+      {
+        speaker: "Traveler",
+        input: true,
+        placeholder: "Share your experience..."
+      },
+      {
+        speaker: "Qora",
+        text: "That’s very insightful. I sometimes find that even fleeting moments of acknowledgment can brighten the day—like when a colleague's nod in a meeting turned a challenge into an opportunity."
+      },
+      {
+        speaker: "Traveler",
+        input: true,
+        placeholder: "Anything else you'd like to add?"
+      },
+      {
+        speaker: "Qora",
+        text: "Thank you for sharing your thoughts, traveler. Your reflections remind us that every perspective lights the path toward a more inclusive future."
+      }
+    ];
+
+    var biasTestConversation = [
+      {
+        speaker: "Qora",
+        text: "Welcome to the Unconscious Bias Test. Your responses remain completely anonymous, and there are no right or wrong answers."
+      },
+      {
+        speaker: "Qora",
+        text: "Question 1: When you see a resume with a culturally distinct name, what is your immediate gut reaction regarding the candidate’s fit for a role?"
+      },
+      {
+        speaker: "Traveler",
+        input: true,
+        placeholder: "Your gut reaction..."
+      },
+      {
+        speaker: "Qora",
+        text: "Question 2: In group discussions, do you notice yourself more readily aligning with ideas from colleagues who share your background? (Yes/No/Maybe)"
+      },
+      {
+        speaker: "Traveler",
+        input: true,
+        placeholder: "Yes, No, or Maybe..."
+      },
+      {
+        speaker: "Qora",
+        text: "Question 3: Reflect on a recent meeting—did you observe any subtle patterns in whose ideas were favored based on their background? Please describe briefly."
+      },
+      {
+        speaker: "Traveler",
+        input: true,
+        placeholder: "Your observation..."
+      },
+      {
+        speaker: "Qora",
+        text: "Thank you for your honest responses. Your insights help us uncover and address unconscious biases within our community."
+      }
+    ];
+
+    // Global variables to track the current conversation and step.
+    var currentConversation = [];
+    var currentStep = 0;
+    var chatBox = $("#chat-box");
+
+    // Function to add a message bubble to the chat box.
+    function addMessage(speaker, message) {
+      chatBox.append(
+        '<div class="message ' + speaker + '"><strong>' + speaker + ':</strong> ' + message + '</div>'
+      );
+      chatBox.scrollTop(chatBox[0].scrollHeight);
+    }
+
+    // Function to display the next step in the current conversation.
+    function showNextStep() {
+      if (currentStep < currentConversation.length) {
+        var step = currentConversation[currentStep];
+        if (step.speaker === "Qora") {
+          addMessage("Qora", step.text);
+          currentStep++;
+          if (currentStep < currentConversation.length && currentConversation[currentStep].speaker === "Qora") {
+            setTimeout(showNextStep, 1500);
+          } else if (currentStep < currentConversation.length && currentConversation[currentStep].speaker === "Traveler") {
+            $("#user-input")
+              .attr("placeholder", currentConversation[currentStep].placeholder)
+              .prop("disabled", false)
+              .focus();
+            $("#send").prop("disabled", false);
+          }
+        }
+      }
+    }
+
+    $(document).ready(function(){
+      // Handler for the Journey Walk button.
+      $("#journey-walk").click(function(){
+        $("#start-page").fadeOut(500, function(){
+          $("#chat-interface").fadeIn(500);
+          chatBox.empty(); // Clear previous messages.
+          currentConversation = journeyConversation;
+          currentStep = 0;
+          showNextStep();
+          setTimeout(showNextStep, 1500);
+        });
+      });
+      
+      // Handler for the Unconscious Bias Test button.
+      $("#unconscious-bias").click(function(){
+        $("#start-page").fadeOut(500, function(){
+          $("#chat-interface").fadeIn(500);
+          chatBox.empty(); // Clear previous messages.
+          currentConversation = biasTestConversation;
+          currentStep = 0;
+          showNextStep();
+          setTimeout(showNextStep, 1500);
+        });
+      });
+
+      $("#send").click(function(){
+        var userMessage = $("#user-input").val().trim();
+        if (!userMessage) return;
+        addMessage("Traveler", userMessage);
+        $("#user-input").val("").prop("disabled", true);
+        $("#send").prop("disabled", true);
+        currentStep++;
+        setTimeout(showNextStep, 1500);
+      });
+
+      $("#user-input").keypress(function(e){
+        if(e.which === 13) {
+          $("#send").click();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+

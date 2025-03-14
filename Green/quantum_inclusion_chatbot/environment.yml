@@ -1,0 +1,7 @@
+name: quantum_inclusion_chatbot
+channels:
+  - defaults
+dependencies:
+  - python=3.9
+  - flask
+
