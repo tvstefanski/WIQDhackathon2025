@@ -1,0 +1,64 @@
+/* Set full-page light blue background */
+body {
+    background-color: #d0e3f1;
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+}
+
+/* Center content */
+.home-container {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full viewport height */
+    text-align: center;
+    position: relative;
+}
+
+/* Image styling: Make it fill the height */
+.main-image {
+    width: auto;
+    height: 100vh;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.title {
+    font-size: 10rem; /* Large text */
+    font-weight: 400;
+    font-family: 'Caveat', cursive;
+    color: black;
+    position: absolute;
+    top: 55vh; /* Position at 75% height */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+}
+
+/* Button Styling: Position at 85% of the viewport height */
+.start-button {
+    padding: 15px 50px;
+    font-size: 5rem;
+    font-weight: bold;
+    font-family: 'Caveat', cursive;
+    color: white;
+    background-color: #ff6b6b;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    position: absolute;
+    top: 85vh; /* Position at 85% height */
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Button Hover Effect */
+.start-button:hover {
+    background-color: #ff4040;
+    transform: translate(-50%, -50%) scale(1.1); /* Keep the same translate */
+}
